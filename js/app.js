@@ -46,6 +46,7 @@ const clickHandler = (e) => {
     coordinates = {};
     //re-draw all lines
     draw();
+    console.log(line);
   } else if (e.button === 2) {
     coordinates = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -69,9 +70,31 @@ const mouseMoveHandler = (e) => {
   }
 };
 
+const colapseLines = () => {
+  const getDistanceToCentre = (line) => {
+    const lineCentreX = (line.x1 + line.x2) / 2;
+    const lineCentreY = (line.y1 + line.y2) / 2;
+    const distanceToCentreX = (line.x1 - lineCentreX) / 100;
+    const distanceToCentreY = (line.y1 - lineCentreY) / 100;
+    return { x: distanceToCentreX, y: distanceToCentreY };
+  };
+  let timerId = setInterval(() => {
+    if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
+      for (let line of lines) {
+        line.x1 -= getDistanceToCentre(line).x;
+        line.y1 -= getDistanceToCentre(line).y;
+        line.x2 += getDistanceToCentre(line).x;
+        line.y2 += getDistanceToCentre(line).y;
+        draw();
+      }
+    }
+  }, 5);
+  setTimeout(() => {
+    clearInterval(timerId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 3000);
+};
+
 canvas.addEventListener("mouseup", clickHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
-collapseButton.addEventListener("click", () => {
-  lines = [];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
+collapseButton.addEventListener("click", colapseLines);
