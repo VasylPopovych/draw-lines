@@ -5,6 +5,7 @@ const ctx = canvas.getContext("2d");
 let coordinates = {};
 let lines = [];
 let previewLines = [];
+let allCoordinates;
 
 const draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -92,8 +93,11 @@ const colapseLines = () => {
   setTimeout(() => {
     clearInterval(timerId);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    lines = [];
   }, 3000);
 };
+
+const getIntersection = () => {};
 
 canvas.addEventListener("mouseup", clickHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
