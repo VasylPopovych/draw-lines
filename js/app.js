@@ -5,29 +5,38 @@ const ctx = canvas.getContext("2d");
 let coordinates = {};
 let lines = [];
 let previewLines = [];
-let allCoordinates;
+let intersections = [];
+let previewIntersections = [];
 
-const draw = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let line of lines) {
-    ctx.beginPath();
-    ctx.moveTo(line.x1 - canvas.getBoundingClientRect().x, line.y1 - canvas.getBoundingClientRect().y);
-    ctx.lineTo(line.x2 - canvas.getBoundingClientRect().x, line.y2 - canvas.getBoundingClientRect().y);
-    ctx.stroke();
-  }
+const drawLine = (line) => {
+  ctx.beginPath();
+  ctx.moveTo(line.x1 - canvas.getBoundingClientRect().x, line.y1 - canvas.getBoundingClientRect().y);
+  ctx.lineTo(line.x2 - canvas.getBoundingClientRect().x, line.y2 - canvas.getBoundingClientRect().y);
+  ctx.stroke();
 };
 
-const drawPreviewLine = () => {
+const drawIntersection = (intersection) => {
   ctx.beginPath();
-  ctx.moveTo(
-    previewLines[0].x1 - canvas.getBoundingClientRect().x,
-    previewLines[0].y1 - canvas.getBoundingClientRect().y
+  ctx.fillStyle = "red";
+  ctx.arc(
+    Math.round(intersection.x) - canvas.getBoundingClientRect().x,
+    Math.round(intersection.y) - canvas.getBoundingClientRect().y,
+    5,
+    0 * Math.PI,
+    2 * Math.PI
   );
-  ctx.lineTo(
-    previewLines[0].x2 - canvas.getBoundingClientRect().x,
-    previewLines[0].y2 - canvas.getBoundingClientRect().y
-  );
-  ctx.stroke();
+  ctx.fill();
+};
+
+const draw = () => {
+  //draw lines
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let line of lines) {
+    drawLine(line);
+  }
+  //draw preview line
+  //maybe add checking if preview line is exist
+  drawLine(previewLines[0]);
 };
 
 const clickHandler = (e) => {
@@ -47,9 +56,10 @@ const clickHandler = (e) => {
     coordinates = {};
     //re-draw all lines
     draw();
-    console.log(line);
+    drawIntersections();
   } else if (e.button === 2) {
     coordinates = {};
+    previewLines = [];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw();
   }
@@ -58,6 +68,8 @@ const clickHandler = (e) => {
 const mouseMoveHandler = (e) => {
   if (coordinates.x) {
     previewLines = [];
+    previewIntersections = [];
+    intersections = [];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const previewLine = {
       x1: coordinates.x,
@@ -67,18 +79,24 @@ const mouseMoveHandler = (e) => {
     };
     previewLines.push(previewLine);
     draw();
-    drawPreviewLine();
+    if (lines.length !== 0) drawIntersections();
+
+    //previewIntersections.push(getIntersections(lines[0], previewLines[0]));
+    //drawIntersections(previewIntersections);
   }
 };
 
-const colapseLines = () => {
-  const getDistanceToCentre = (line) => {
-    const lineCentreX = (line.x1 + line.x2) / 2;
-    const lineCentreY = (line.y1 + line.y2) / 2;
-    const distanceToCentreX = (line.x1 - lineCentreX) / 100;
-    const distanceToCentreY = (line.y1 - lineCentreY) / 100;
-    return { x: distanceToCentreX, y: distanceToCentreY };
-  };
+const getDistanceToCentre = (line) => {
+  //get 1%, in px, distance to centre of line
+  const lineCentreX = (line.x1 + line.x2) / 2;
+  const lineCentreY = (line.y1 + line.y2) / 2;
+  const distanceToCentreX = (line.x1 - lineCentreX) / 100;
+  const distanceToCentreY = (line.y1 - lineCentreY) / 100;
+  return { x: distanceToCentreX, y: distanceToCentreY };
+};
+
+const collapseLines = () => {
+  //bug: last line is not collasping
   let timerId = setInterval(() => {
     if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
       for (let line of lines) {
@@ -97,8 +115,74 @@ const colapseLines = () => {
   }, 3000);
 };
 
-const getIntersection = () => {};
+// INTERSECTIONS
+
+function checkIntersectsExist(a, b, c, d, p, q, r, s) {
+  //check if two lines has intersect
+  var det, gamma, lambda;
+  det = (c - a) * (s - q) - (r - p) * (d - b);
+  if (det === 0) {
+    return false;
+  } else {
+    lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+  }
+}
+
+function getIntersection(lineA, lineB) {
+  if (
+    lines.length > 0 &&
+    checkIntersectsExist(lineA.x1, lineA.y1, lineA.x2, lineA.y2, lineB.x1, lineB.y1, lineB.x2, lineB.y2)
+  ) {
+    let c2x = lineB.x1 - lineB.x2;
+    let c3x = lineA.x1 - lineA.x2;
+    let c2y = lineB.y1 - lineB.y2;
+    let c3y = lineA.y1 - lineA.y2;
+
+    let d = c3x * c2y - c3y * c2x;
+
+    if (d == 0) {
+      throw new Error("Number of intersection points is zero or infinity.");
+    }
+
+    let u1 = lineA.x1 * lineA.y2 - lineA.y1 * lineA.x2;
+    let u4 = lineB.x1 * lineB.y2 - lineB.y1 * lineB.x2;
+
+    let px = (u1 * c2x - c3x * u4) / d;
+    let py = (u1 * c2y - c3y * u4) / d;
+
+    let intersectionPoint = { x: px, y: py };
+    return intersectionPoint;
+  }
+}
+
+const getAllLinesIntersections = () => {
+  //fucntion for checking all lines for intersection
+  //bug: in array of intersections add same intersection. Need configure for adding only unicue intersections value.
+  for (let i = 0; i < lines.length; i++) {
+    for (let line of lines) {
+      if (getIntersection(lines[i], line)) intersections.push(getIntersection(lines[i], line));
+    }
+  }
+  for (let line of lines) {
+    if (getIntersection(previewLines[0], line)) previewIntersections.push(getIntersection(previewLines[0], line));
+  }
+  console.log(`List of all previewIntersections ${previewIntersections}`);
+};
+
+const drawIntersections = () => {
+  getAllLinesIntersections();
+  //draw intersections
+  for (let intersection of intersections) {
+    drawIntersection(intersection);
+  }
+  //draw preview intersections
+  for (let intersection of previewIntersections) {
+    drawIntersection(intersection);
+  }
+};
 
 canvas.addEventListener("mouseup", clickHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
-collapseButton.addEventListener("click", colapseLines);
+collapseButton.addEventListener("click", collapseLines);
