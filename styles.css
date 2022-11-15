@@ -17,4 +17,6 @@ canvas {
   width: 200px;
   text-align: center;
   cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
 }
