@@ -29,14 +29,13 @@ const drawIntersection = (intersection) => {
 };
 
 const draw = () => {
-  //draw lines
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //draw lines
   for (let line of lines) {
     drawLine(line);
   }
   //draw preview line
-  //maybe add checking if preview line is exist
-  drawLine(previewLines[0]);
+  if (previewLines.length > 0) drawLine(previewLines[0]);
 };
 
 const clickHandler = (e) => {
@@ -57,6 +56,8 @@ const clickHandler = (e) => {
     //re-draw all lines
     draw();
     drawIntersections();
+
+    previewLines = [];
   } else if (e.button === 2) {
     coordinates = {};
     previewLines = [];
@@ -79,10 +80,7 @@ const mouseMoveHandler = (e) => {
     };
     previewLines.push(previewLine);
     draw();
-    if (lines.length !== 0) drawIntersections();
-
-    //previewIntersections.push(getIntersections(lines[0], previewLines[0]));
-    //drawIntersections(previewIntersections);
+    if (lines.length > 0) drawIntersections();
   }
 };
 
@@ -96,7 +94,6 @@ const getDistanceToCentre = (line) => {
 };
 
 const collapseLines = () => {
-  //bug: last line is not collasping
   let timerId = setInterval(() => {
     if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
       for (let line of lines) {
