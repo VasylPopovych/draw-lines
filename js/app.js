@@ -59,8 +59,10 @@ const clickHandler = (e) => {
   } else if (e.button === 2) {
     coordinates = {};
     previewLines = [];
+    previewIntersections = [];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw();
+    drawIntersections();
   }
 };
 
