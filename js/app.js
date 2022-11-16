@@ -52,10 +52,10 @@ const clickHandler = (e) => {
     };
     lines.push(line);
     coordinates = {};
+    previewLines = [];
     //re-draw all lines
     draw();
     drawIntersections();
-    previewLines = [];
   } else if (e.button === 2) {
     coordinates = {};
     previewLines = [];
@@ -92,6 +92,7 @@ const getDistanceToCentre = (line) => {
 };
 
 const collapseLines = () => {
+  if (lines.length === 0) return;
   let timerId = setInterval(() => {
     if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
       for (let line of lines) {
@@ -164,6 +165,7 @@ const getAllLinesIntersections = () => {
       }
     }
   }
+  if (previewLines.length === 0) return;
   for (let line of lines) {
     let intersection = getIntersection(previewLines[0], line);
     if (intersection) previewIntersections.push(intersection);
