@@ -4,14 +4,29 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: rgb(238, 238, 238); /* Old browsers */
+  background: -moz-linear-gradient(top, rgb(238, 238, 238) 0%, rgb(238, 238, 238) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(
+    top,
+    rgb(238, 238, 238) 0%,
+    rgb(238, 238, 238) 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(
+    to bottom,
+    rgb(238, 238, 238) 0%,
+    rgb(238, 238, 238) 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
 }
 canvas {
   margin-top: 20px;
   border: 2px solid rgb(55, 47, 163);
+  background-color: aliceblue;
+  border-radius: 5px;
 }
 
 .button {
-  border: 1px solid rgb(55, 47, 163);
+  border: 2px solid rgb(55, 47, 163);
   padding: 10px;
   margin-top: 20px;
   width: 200px;
@@ -19,4 +34,8 @@ canvas {
   cursor: pointer;
   border-radius: 5px;
   font-weight: bold;
+  background-color: aliceblue;
+}
+.button:hover {
+  background-color: rgb(212, 227, 248);
 }
