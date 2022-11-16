@@ -96,6 +96,7 @@ const getDistanceToCentre = (line) => {
 const collapseLines = () => {
   if (lines.length === 0) return;
   let timerId = setInterval(() => {
+    coordinates = [];
     if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
       for (let line of lines) {
         line.x1 -= getDistanceToCentre(line).x;
@@ -110,6 +111,7 @@ const collapseLines = () => {
     clearInterval(timerId);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines = [];
+    coordinates = {};
   }, 3000);
 };
 
