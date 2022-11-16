@@ -17,7 +17,7 @@ const drawLine = (line) => {
 
 const drawIntersection = (intersection) => {
   ctx.beginPath();
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "blue";
   ctx.arc(
     Math.round(intersection.x) - canvas.getBoundingClientRect().x,
     Math.round(intersection.y) - canvas.getBoundingClientRect().y,
@@ -51,12 +51,10 @@ const clickHandler = (e) => {
       y2: e.pageY,
     };
     lines.push(line);
-    //empty coordinates
     coordinates = {};
     //re-draw all lines
     draw();
     drawIntersections();
-
     previewLines = [];
   } else if (e.button === 2) {
     coordinates = {};
@@ -112,10 +110,10 @@ const collapseLines = () => {
   }, 3000);
 };
 
-// INTERSECTIONS
+// Functions for INTERSECTIONS
 
 function checkIntersectsExist(a, b, c, d, p, q, r, s) {
-  //check if two lines has intersect
+  //this function checks if two lines has intersect
   var det, gamma, lambda;
   det = (c - a) * (s - q) - (r - p) * (d - b);
   if (det === 0) {
@@ -128,6 +126,7 @@ function checkIntersectsExist(a, b, c, d, p, q, r, s) {
 }
 
 function getIntersection(lineA, lineB) {
+  //this function get intersection of two lines
   if (
     lines.length > 0 &&
     checkIntersectsExist(lineA.x1, lineA.y1, lineA.x2, lineA.y2, lineB.x1, lineB.y1, lineB.x2, lineB.y2)
@@ -156,16 +155,19 @@ function getIntersection(lineA, lineB) {
 
 const getAllLinesIntersections = () => {
   //fucntion for checking all lines for intersection
-  //bug: in array of intersections add same intersection. Need configure for adding only unicue intersections value.
   for (let i = 0; i < lines.length; i++) {
     for (let line of lines) {
-      if (getIntersection(lines[i], line)) intersections.push(getIntersection(lines[i], line));
+      let intersection = getIntersection(lines[i], line);
+      //check intersections for dublicates
+      if (intersection && !intersections.find((item) => item.x === intersection.x && item.y === intersection.y)) {
+        intersections.push(intersection);
+      }
     }
   }
   for (let line of lines) {
-    if (getIntersection(previewLines[0], line)) previewIntersections.push(getIntersection(previewLines[0], line));
+    let intersection = getIntersection(previewLines[0], line);
+    if (intersection) previewIntersections.push(intersection);
   }
-  console.log(`List of all previewIntersections ${previewIntersections}`);
 };
 
 const drawIntersections = () => {
