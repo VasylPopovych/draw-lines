@@ -7,6 +7,7 @@ let lines = [];
 let previewLines = [];
 let intersections = [];
 let previewIntersections = [];
+let isActiveButton = true;
 
 const drawLine = (line) => {
   ctx.beginPath();
@@ -94,8 +95,9 @@ const getDistanceToCentre = (line) => {
 };
 
 const collapseLines = () => {
-  if (lines.length === 0) return;
+  if (lines.length === 0 || !isActiveButton) return;
   let timerId = setInterval(() => {
+    isActiveButton = false;
     coordinates = [];
     if (lines[0].x1 > getDistanceToCentre(lines[0]).x) {
       for (let line of lines) {
@@ -112,6 +114,7 @@ const collapseLines = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines = [];
     coordinates = {};
+    isActiveButton = true;
   }, 3000);
 };
 
